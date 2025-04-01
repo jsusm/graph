@@ -1,64 +1,7 @@
 import { useEffect, useRef, useState } from "react"
-
-type ActionState = 'idle' | 'selecting' | 'dragging'
-
-const strokeColors = {
-  red: "oklch(0.645 0.246 16.439)",
-  blue: "oklch(0.609 0.126 221.723)",
-}
-
-const fillColors = {
-  red: 'oklch(0.41 0.159 10.272)',
-  blue: 'oklch(0.398 0.07 227.392)',
-}
-
-type DrawNode = {
-  bounding: [number, number, number, number];
-  type: 'square' | 'circle';
-  strokeColor: keyof typeof strokeColors;
-  path: Path2D;
-  lineWidth: number;
-  filled: boolean;
-  fillColor: keyof typeof fillColors;
-}
-
-type DrawState = {
-  actionState: ActionState;
-  selectedNode: number;
-  hover: boolean;
-  objects: DrawNode[];
-  mouse: {
-    relativeOffset: [number, number]
-  }
-}
-
-function draw(c: CanvasRenderingContext2D, state: DrawState) {
-  // Clear Canvas
-  c.beginPath()
-  c.clearRect(0, 0, c.canvas.width, c.canvas.height)
-
-  // Draw objects
-  for (let i = 0; i < state.objects.length; i++) {
-    const obj = state.objects[i]
-    // check if object is in screen
-
-
-    if (obj.type == 'square') {
-      c.save()
-      c.beginPath()
-      obj.path = new Path2D()
-      obj.path.roundRect(obj.bounding[0], obj.bounding[1], obj.bounding[2], obj.bounding[3], 4)
-      c.lineWidth = obj.lineWidth
-      if (obj.filled) {
-        c.fillStyle = fillColors[obj.fillColor]
-        c.fill(obj.path)
-      }
-      c.strokeStyle = strokeColors[obj.strokeColor]
-      c.stroke(obj.path)
-      c.restore()
-    }
-  }
-}
+import { strokeColors, fillColors, Colors } from './lib/colors.ts'
+import { DrawState } from "./lib/types.ts"
+import { draw } from "./lib/draw.ts"
 
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -107,9 +50,6 @@ function App() {
     if (c && canvas.current) {
       canvas.current.width = rect.width
       canvas.current.height = rect.height
-
-      c.strokeStyle = '#fff'
-      c.lineWidth = 3
 
       ctx.current = c
     }
@@ -202,7 +142,7 @@ function App() {
     })
   }
 
-  function onSelectColor(c: keyof typeof strokeColors) {
+  function onSelectColor(c: Colors) {
     if (drawState.actionState == 'selecting') {
       const objects = [...drawState.objects]
       objects[drawState.selectedNode].fillColor = c
@@ -226,7 +166,7 @@ function App() {
             if (drawState.objects[drawState.selectedNode] && drawState.objects[drawState.selectedNode].strokeColor == c) selectedColor = true
 
             return (
-              <button onClick={() => onSelectColor(c)} className={`w-6 h-6 rounded-lg border outline-offset-2 outline-stone-500 hover:cursor-pointer hover:brightness-125 transition-all ${selectedColor && 'outline-2'}`} style={{ borderColor: strokeColors[c as keyof typeof fillColors], backgroundColor: fillColors[c as keyof typeof fillColors] }}>
+              <button onClick={() => onSelectColor(c as Colors)} className={`w-6 h-6 rounded-lg border outline-offset-2 outline-stone-500 hover:cursor-pointer hover:brightness-125 transition-all ${selectedColor && 'outline-2'}`} style={{ borderColor: strokeColors[c as Colors], backgroundColor: fillColors[c as Colors] }}>
               </button>
             )
           })}
