@@ -1,15 +1,15 @@
-import { useEffect, useReducer, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type ActionState = 'idle' | 'selecting' | 'dragging'
 
 const strokeColors = {
   red: "oklch(0.645 0.246 16.439)",
-  blue: "oklch(0.707 0.165 254.624)",
+  blue: "oklch(0.609 0.126 221.723)",
 }
 
 const fillColors = {
   red: 'oklch(0.41 0.159 10.272)',
-  blue: 'oklch(0.424 0.199 265.638)',
+  blue: 'oklch(0.398 0.07 227.392)',
 }
 
 type DrawNode = {
@@ -47,7 +47,7 @@ function draw(c: CanvasRenderingContext2D, state: DrawState) {
       c.save()
       c.beginPath()
       obj.path = new Path2D()
-      obj.path.rect(obj.bounding[0], obj.bounding[1], obj.bounding[2], obj.bounding[3])
+      obj.path.roundRect(obj.bounding[0], obj.bounding[1], obj.bounding[2], obj.bounding[3], 4)
       c.lineWidth = obj.lineWidth
       if (obj.filled) {
         c.fillStyle = fillColors[obj.fillColor]
@@ -202,14 +202,38 @@ function App() {
     })
   }
 
+  function onSelectColor(c: keyof typeof strokeColors) {
+    if (drawState.actionState == 'selecting') {
+      const objects = [...drawState.objects]
+      objects[drawState.selectedNode].fillColor = c
+      objects[drawState.selectedNode].strokeColor = c
+
+      setDrawState(s => ({ ...s, objects }))
+    }
+  }
+
   return (
     <main className="bg-stone-900 min-h-screen text-white" style={{
-      'cursor': drawState.hover ? drawState.actionState == 'dragging' ? 'grabbing' : 'grab' : 'default'
+      'cursor': drawState.actionState == 'dragging' ? 'grabbing' : drawState.hover ? 'grab' : 'default'
     }}>
       <canvas ref={canvas}>
       </canvas>
 
-      <div className="absolute top-0 left-0 pointer-events-none">
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 px-4 py-3 border border-stone-600 rounded-lg">
+        <div className="flex gap-3">
+          {Object.keys(fillColors).map((c) => {
+            let selectedColor = false
+            if (drawState.objects[drawState.selectedNode] && drawState.objects[drawState.selectedNode].strokeColor == c) selectedColor = true
+
+            return (
+              <button onClick={() => onSelectColor(c)} className={`w-6 h-6 rounded-lg border outline-offset-2 outline-stone-500 hover:cursor-pointer hover:brightness-125 transition-all ${selectedColor && 'outline-2'}`} style={{ borderColor: strokeColors[c as keyof typeof fillColors], backgroundColor: fillColors[c as keyof typeof fillColors] }}>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 pointer-events-none">
         <pre>
           action: {drawState.actionState} <br />
           nodeSelected: {drawState.selectedNode}<br />
