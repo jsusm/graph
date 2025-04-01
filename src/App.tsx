@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react"
 import { strokeColors, fillColors, Colors } from './lib/colors.ts'
 import { DrawState } from "./lib/types.ts"
 import { draw } from "./lib/draw.ts"
+import { useResizeCanvas } from "./hooks/useResizeCanvas.ts"
+import { useCanvasLoop } from "./hooks/useCanvasLoop.ts"
 
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null)
-  const ctx = useRef<CanvasRenderingContext2D | null>(null)
 
   const [drawState, setDrawState] = useState<DrawState>({
     hover: false,
@@ -40,43 +41,19 @@ function App() {
 
   useEffect(() => {
     refDrawState.current = drawState
+
   }, [drawState])
 
+  const { context: ctx } = useCanvasLoop(canvas, refDrawState, draw)
+  useResizeCanvas(canvas)
+
   useEffect(() => {
-    const rect = window.document.body.getBoundingClientRect()
-
-    // set up canvas context
-    const c = canvas.current?.getContext('2d')
-    if (c && canvas.current) {
-      canvas.current.width = rect.width
-      canvas.current.height = rect.height
-
-      ctx.current = c
-    }
-
     setupListeners()
-
-    // Resize canvas when window is resized
-    window.addEventListener('resize', _ => {
-      if (canvas.current) {
-        canvas.current.width = window.innerWidth
-        canvas.current.height = window.innerHeight
-      }
-    })
-
-    function loop() {
-      if (c) {
-        draw(c, refDrawState.current)
-      }
-      requestAnimationFrame(loop)
-    }
-    loop()
   }, [])
 
   const setupListeners = () => {
     window.addEventListener('mousemove', (e) => {
       const ds = refDrawState.current
-
       // check if the mouse is over a node
       let isHover = false
       for (let i = ds.objects.length - 1; i >= 0; i--) {
@@ -166,7 +143,7 @@ function App() {
             if (drawState.objects[drawState.selectedNode] && drawState.objects[drawState.selectedNode].strokeColor == c) selectedColor = true
 
             return (
-              <button onClick={() => onSelectColor(c as Colors)} className={`w-6 h-6 rounded-lg border outline-offset-2 outline-stone-500 hover:cursor-pointer hover:brightness-125 transition-all ${selectedColor && 'outline-2'}`} style={{ borderColor: strokeColors[c as Colors], backgroundColor: fillColors[c as Colors] }}>
+              <button key={c} onClick={() => onSelectColor(c as Colors)} className={`w-6 h-6 rounded-lg border outline-offset-2 outline-stone-500 hover:cursor-pointer hover:brightness-125 transition-all ${selectedColor && 'outline-2'}`} style={{ borderColor: strokeColors[c as Colors], backgroundColor: fillColors[c as Colors] }}>
               </button>
             )
           })}
@@ -177,7 +154,7 @@ function App() {
         <pre>
           action: {drawState.actionState} <br />
           nodeSelected: {drawState.selectedNode}<br />
-          hover: {drawState.hover ? ' true' : 'false'}<br />
+          hover: {drawState.hover ? 'true' : 'false'}<br />
         </pre>
       </div>
     </main>
