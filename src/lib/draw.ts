@@ -7,8 +7,8 @@ export function draw(c: CanvasRenderingContext2D, state: DrawState) {
 	c.clearRect(0, 0, c.canvas.width, c.canvas.height)
 
 	// Draw objects
-	for (let i = 0; i < state.objects.length; i++) {
-		const obj = state.objects[i]
+	for (let i = 0; i < state.nodes.length; i++) {
+		const obj = state.nodes[i]
 		// check if object is in screen
 
 

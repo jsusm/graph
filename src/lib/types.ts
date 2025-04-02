@@ -1,8 +1,7 @@
 import { Colors } from "./colors";
 
-export type ActionState = 'idle' | 'selecting' | 'dragging'
-
 export type DrawNode = {
+	id: number;
 	bounding: [number, number, number, number];
 	type: 'square' | 'circle';
 	strokeColor: Colors;
@@ -12,12 +11,11 @@ export type DrawNode = {
 	fillColor: Colors;
 }
 
+export type Tool = 'cursor' | 'rect'
+
 export type DrawState = {
-	actionState: ActionState;
-	selectedNode: number;
-	hover: boolean;
-	objects: DrawNode[];
-	mouse: {
-		relativeOffset: [number, number]
-	}
+	tool: Tool;
+	selectedNodeId: number;
+	selectedNodeIdx: number;
+	nodes: DrawNode[];
 }
