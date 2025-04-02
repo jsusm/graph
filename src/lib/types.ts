@@ -17,5 +17,6 @@ export type DrawState = {
 	tool: Tool;
 	selectedNodeId: number;
 	selectedNodeIdx: number;
+	lastId: number;
 	nodes: DrawNode[];
 }
