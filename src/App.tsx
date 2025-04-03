@@ -7,7 +7,7 @@ import { Button } from "./components/ui/Button.tsx"
 import { cn } from "./lib/classMerge.ts"
 import { useCursorTool } from "./hooks/tools/useCursorTool.ts"
 import { appStateReducer } from "./reducers/appState.ts"
-import { useRectTool } from "./hooks/tools/useRectTool.ts"
+import { useSimpleShapeTool } from "./hooks/tools/useSimpleShapeTool.ts"
 
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -15,7 +15,7 @@ function App() {
   const initialNodes: DrawNode[] = [
     {
       id: 1,
-      type: 'square',
+      type: 'rect',
       bounding: [40, 40, 80, 80],
       strokeColor: 'red',
       path: new Path2D(),
@@ -25,7 +25,7 @@ function App() {
     },
     {
       id: 2,
-      type: 'square',
+      type: 'circle',
       bounding: [40, 40, 80, 80],
       strokeColor: 'blue',
       path: new Path2D(),
@@ -43,7 +43,8 @@ function App() {
 
   // Use tools
   const cursorTool = useCursorTool({ refAppState: refState, dispatch, canvasContext: ctx })
-  const rectTool = useRectTool({ refAppState: refState, dispatch, canvasContext: ctx })
+  const rectTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'rect')
+  const elipceTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'elipce')
 
   // Manage handlers
   const handlersToRemove = useRef<() => void>(() => { })
@@ -52,6 +53,7 @@ function App() {
   // register tools event listeners
   toolsHandlers['cursor'] = cursorTool.handlers
   toolsHandlers['rect'] = rectTool.handlers
+  toolsHandlers['elipce'] = elipceTool.handlers
 
   // remove event listeners and register new ones
   useEffect(() => {
@@ -73,6 +75,9 @@ function App() {
           </Button>
           <Button className={cn(state.tool === 'rect' && 'text-amber-600')} onClick={() => dispatch({ type: 'tool', payload: { tool: 'rect' } })}>
             [rect]
+          </Button>
+          <Button className={cn(state.tool === 'elipce' && 'text-amber-600')} onClick={() => dispatch({ type: 'tool', payload: { tool: 'elipce' } })}>
+            [elipce]
           </Button>
         </div>
       </div>

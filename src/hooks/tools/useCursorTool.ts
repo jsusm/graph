@@ -1,5 +1,6 @@
 import { ActionDispatch, RefObject, useEffect, useRef, useState } from "react"
-import { Action, DrawState } from "../../lib/types"
+import { DrawState } from "../../lib/types"
+import { Action } from "../../reducers/appState"
 
 export function useCursorTool(context: { refAppState: RefObject<DrawState>, dispatch: ActionDispatch<[action: Action]>, canvasContext: RefObject<CanvasRenderingContext2D | null> }) {
   const [hover, setHover] = useState(false)

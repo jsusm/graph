@@ -1,9 +1,11 @@
 import { Colors } from "./colors";
 
+export type Shape = 'rect' | 'elipce'
+
 export type DrawNode = {
 	id: number;
 	bounding: [number, number, number, number];
-	type: 'square' | 'circle';
+	type: Shape;
 	strokeColor: Colors;
 	path: Path2D;
 	lineWidth: number;
@@ -11,7 +13,7 @@ export type DrawNode = {
 	fillColor: Colors;
 }
 
-export type Tool = 'cursor' | 'rect'
+export type Tool = 'cursor' | 'rect' | 'elipce'
 
 export type DrawState = {
 	tool: Tool;

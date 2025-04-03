@@ -1,8 +1,8 @@
 import { ActionDispatch, RefObject, useEffect, useRef, useState } from "react"
-import { DrawState } from "../../lib/types"
+import { DrawState, Shape } from "../../lib/types"
 import { Action } from "../../reducers/appState"
 
-export function useRectTool(context: { refAppState: RefObject<DrawState>, dispatch: ActionDispatch<[action: Action]>, canvasContext: RefObject<CanvasRenderingContext2D | null> }) {
+export function useSimpleShapeTool(context: { refAppState: RefObject<DrawState>, dispatch: ActionDispatch<[action: Action]>, canvasContext: RefObject<CanvasRenderingContext2D | null> }, shape: Shape) {
   const [state, setState] = useState('idle')
 
   const toolStateRef = useRef({ state })
@@ -40,7 +40,7 @@ export function useRectTool(context: { refAppState: RefObject<DrawState>, dispat
             strokeColor: 'red',
             lineWidth: 2,
             path: new Path2D,
-            type: 'square',
+            type: shape,
             id: -1
           }
         }
