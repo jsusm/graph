@@ -22,4 +22,5 @@ export type DrawState = {
 	selectedNodeIdx: number;
 	lastId: number;
 	nodes: DrawNode[];
+	saved: number;
 }

@@ -5,7 +5,8 @@ export type Action =
 	{ type: 'selectNode'; payload: { nodeId: number } } |
 	{ type: 'setNode', payload: { id: number, nodeData: DrawNode } } |
 	{ type: 'addNode', payload: { nodeData: DrawNode } } |
-	{ type: 'removeNode', payload: { id: number } }
+	{ type: 'removeNode', payload: { id: number } } |
+	{ type: 'editComplete' }
 
 export function appStateReducer(prevState: DrawState, action: Action): DrawState {
 	switch (action.type) {
@@ -24,6 +25,9 @@ export function appStateReducer(prevState: DrawState, action: Action): DrawState
 
 		case 'removeNode':
 			return { ...prevState, nodes: prevState.nodes.filter(n => n.id != action.payload.id) }
+
+		case 'editComplete':
+			return { ...prevState, saved: prevState.saved + 1 }
 
 		default:
 			return prevState;

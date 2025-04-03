@@ -1,5 +1,5 @@
 import { ActionDispatch, RefObject, useEffect, useRef, useState } from "react"
-import { DrawState, Shape } from "../../lib/types"
+import { DrawState } from "../../lib/types"
 import { Action } from "../../reducers/appState"
 
 export function usePencilTool(context: { refAppState: RefObject<DrawState>, dispatch: ActionDispatch<[action: Action]>, canvasContext: RefObject<CanvasRenderingContext2D | null> }) {
@@ -80,6 +80,7 @@ export function usePencilTool(context: { refAppState: RefObject<DrawState>, disp
       } else {
         console.error("Creating scribble but points data is empty")
       }
+      context.dispatch({ type: 'editComplete' })
     }
 
     context.canvasContext.current?.canvas.addEventListener('pointermove', pointermove)

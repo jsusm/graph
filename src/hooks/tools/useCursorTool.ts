@@ -72,6 +72,7 @@ export function useCursorTool(context: { refAppState: RefObject<DrawState>, disp
       if (toolStateRef.current.state == 'dragging') {
         setState('idle')
       }
+      context.dispatch({ type: 'editComplete' })
     }
     window.addEventListener('pointermove', pointermove)
     window.addEventListener('pointerdown', pointerdown)

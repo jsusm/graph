@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef } from "react"
-import { DrawNode } from "./lib/types.ts"
+import { DrawNode, DrawState } from "./lib/types.ts"
 import { draw } from "./lib/draw.ts"
 import { useResizeCanvas } from "./hooks/useResizeCanvas.ts"
 import { useCanvasLoop } from "./hooks/useCanvasLoop.ts"
@@ -36,11 +36,40 @@ function App() {
     }
   ]
 
-  const [state, dispatch] = useReducer(appStateReducer, { nodes: initialNodes, tool: 'cursor', selectedNodeId: -1, selectedNodeIdx: -1, lastId: 4 })
+  function loadState(): DrawState {
+    const nodeData = localStorage.getItem('nodes')
+    let lastId = localStorage.getItem('lastId') ?? 0
+
+    if (typeof lastId == 'string') {
+      lastId = parseInt(lastId)
+    }
+
+    // create default state
+    let drawState: DrawState = { nodes: [], tool: 'cursor', selectedNodeId: -1, selectedNodeIdx: -1, lastId, saved: true }
+
+    // parse node Data
+    if (nodeData != null) {
+      const nodes: DrawNode[] = (JSON.parse(nodeData) as Array<Omit<DrawNode, 'path'>>).map(n => ({
+        ...n,
+        path: new Path2D(),
+      }))
+      drawState.nodes = nodes
+    }
+
+    return drawState
+  }
+
+  const [state, dispatch] = useReducer(appStateReducer, loadState())
   const refState = useRef(state)
 
   const { context: ctx } = useCanvasLoop(canvas, refState, draw)
   useResizeCanvas(canvas)
+
+  // save state when tool changes
+  useEffect(() => {
+    localStorage.setItem('nodes', JSON.stringify(state.nodes))
+    localStorage.setItem('lastId', JSON.stringify(state.lastId))
+  }, [state.saved])
 
   // Use tools
   const cursorTool = useCursorTool({ refAppState: refState, dispatch, canvasContext: ctx })
@@ -101,6 +130,7 @@ function App() {
       <div className="absolute bottom-0 left-0 pointer-events-none">
         <pre>
           tool: {state.tool} <br />
+          stateSaved: {state.saved ? 'true' : 'false'} <br />
           node count: {state.nodes.length} <br />
           cursor.hover: {cursorTool.hover ? 'true' : 'false'} <br />
           cursor.state: {cursorTool.state}

@@ -51,6 +51,7 @@ export function useSimpleShapeTool(context: { refAppState: RefObject<DrawState>,
     const pointerup = (e: MouseEvent) => {
       setState('idle')
       context.dispatch({ type: 'tool', payload: { tool: 'cursor' } })
+      context.dispatch({ type: 'editComplete' })
     }
 
     context.canvasContext.current?.canvas.addEventListener('pointermove', pointermove)

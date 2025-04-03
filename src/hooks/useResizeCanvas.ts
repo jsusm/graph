@@ -8,8 +8,6 @@ export function useResizeCanvas(canvas: RefObject<HTMLCanvasElement | null>) {
         canvas.current.width = window.innerWidth
         canvas.current.height = window.innerHeight
       }
-      console.log("resizing canvas");
-
     }
     handler()
     window.addEventListener('resize', handler)
