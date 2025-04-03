@@ -64,6 +64,30 @@ export function draw(c: CanvasRenderingContext2D, state: DrawState) {
 			c.strokeStyle = strokeColors[obj.strokeColor]
 			c.stroke(obj.path)
 			c.restore()
+		}
+		if (obj.type == 'scribble') {
+			c.save()
+			c.beginPath()
+			obj.path = new Path2D()
+			if (obj.points === undefined) {
+				c.restore()
+				console.error("Trying to draw scribble but points array is empty")
+			} else {
+				obj.path.moveTo(
+					obj.bounding[0] + obj.points[0],
+					obj.bounding[1] + obj.points[1],
+				)
+				for (let i = 2; i < obj.points.length; i += 2) {
+					obj.path.lineTo(
+						obj.bounding[0] + obj.points[i],
+						obj.bounding[1] + obj.points[i + 1],
+					)
+				}
+				c.lineWidth = obj.lineWidth
+				c.strokeStyle = strokeColors[obj.strokeColor]
+				c.stroke(obj.path)
+				c.restore()
+			}
 
 		}
 	}

@@ -8,6 +8,7 @@ import { cn } from "./lib/classMerge.ts"
 import { useCursorTool } from "./hooks/tools/useCursorTool.ts"
 import { appStateReducer } from "./reducers/appState.ts"
 import { useSimpleShapeTool } from "./hooks/tools/useSimpleShapeTool.ts"
+import { usePencilTool } from "./hooks/tools/usePencilTool.ts"
 
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -46,6 +47,7 @@ function App() {
   const rectTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'rect')
   const elipceTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'elipce')
   const lineTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'line')
+  const pencilTool = usePencilTool({ refAppState: refState, dispatch, canvasContext: ctx })
 
   // Manage handlers
   const handlersToRemove = useRef<() => void>(() => { })
@@ -56,6 +58,7 @@ function App() {
   toolsHandlers['rect'] = rectTool.handlers
   toolsHandlers['elipce'] = elipceTool.handlers
   toolsHandlers['line'] = lineTool.handlers
+  toolsHandlers['pencil'] = pencilTool.handlers
 
   // remove event listeners and register new ones
   useEffect(() => {
@@ -88,6 +91,9 @@ function App() {
           </Button>
           <Button className={cn(state.tool === 'line' && 'text-amber-600')} onClick={() => dispatch({ type: 'tool', payload: { tool: 'line' } })}>
             [line]
+          </Button>
+          <Button className={cn(state.tool === 'pencil' && 'text-amber-600')} onClick={() => dispatch({ type: 'tool', payload: { tool: 'pencil' } })}>
+            [pencil]
           </Button>
         </div>
       </div>
