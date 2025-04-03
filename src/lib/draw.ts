@@ -48,5 +48,23 @@ export function draw(c: CanvasRenderingContext2D, state: DrawState) {
 			c.stroke(obj.path)
 			c.restore()
 		}
+		if (obj.type == 'line') {
+			c.save()
+			c.beginPath()
+			obj.path = new Path2D()
+			obj.path.moveTo(
+				obj.bounding[0],
+				obj.bounding[1],
+			)
+			obj.path.lineTo(
+				obj.bounding[0] + obj.bounding[2],
+				obj.bounding[1] + obj.bounding[3],
+			)
+			c.lineWidth = obj.lineWidth
+			c.strokeStyle = strokeColors[obj.strokeColor]
+			c.stroke(obj.path)
+			c.restore()
+
+		}
 	}
 }

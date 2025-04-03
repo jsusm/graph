@@ -1,6 +1,6 @@
 import { Colors } from "./colors";
 
-export type Shape = 'rect' | 'elipce'
+export type Shape = 'rect' | 'elipce' | 'line'
 
 export type DrawNode = {
 	id: number;
@@ -13,7 +13,7 @@ export type DrawNode = {
 	fillColor: Colors;
 }
 
-export type Tool = 'cursor' | 'rect' | 'elipce'
+export type Tool = 'cursor' | 'rect' | 'elipce' | 'line'
 
 export type DrawState = {
 	tool: Tool;

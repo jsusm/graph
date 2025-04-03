@@ -25,7 +25,7 @@ function App() {
     },
     {
       id: 2,
-      type: 'circle',
+      type: 'elipce',
       bounding: [40, 40, 80, 80],
       strokeColor: 'blue',
       path: new Path2D(),
@@ -45,6 +45,7 @@ function App() {
   const cursorTool = useCursorTool({ refAppState: refState, dispatch, canvasContext: ctx })
   const rectTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'rect')
   const elipceTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'elipce')
+  const lineTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'line')
 
   // Manage handlers
   const handlersToRemove = useRef<() => void>(() => { })
@@ -54,13 +55,19 @@ function App() {
   toolsHandlers['cursor'] = cursorTool.handlers
   toolsHandlers['rect'] = rectTool.handlers
   toolsHandlers['elipce'] = elipceTool.handlers
+  toolsHandlers['line'] = lineTool.handlers
 
   // remove event listeners and register new ones
   useEffect(() => {
+    refState.current = state
+
     handlersToRemove.current()
+    if (toolsHandlers[refState.current.tool] == undefined) {
+      console.error("The tool:", refState.current.tool, "is not registered")
+      return
+    }
     handlersToRemove.current = toolsHandlers[refState.current.tool]()
 
-    refState.current = state
   }, [state])
 
   return (
@@ -79,12 +86,16 @@ function App() {
           <Button className={cn(state.tool === 'elipce' && 'text-amber-600')} onClick={() => dispatch({ type: 'tool', payload: { tool: 'elipce' } })}>
             [elipce]
           </Button>
+          <Button className={cn(state.tool === 'line' && 'text-amber-600')} onClick={() => dispatch({ type: 'tool', payload: { tool: 'line' } })}>
+            [line]
+          </Button>
         </div>
       </div>
 
       <div className="absolute bottom-0 left-0 pointer-events-none">
         <pre>
           tool: {state.tool} <br />
+          node count: {state.nodes.length} <br />
           cursor.hover: {cursorTool.hover ? 'true' : 'false'} <br />
           cursor.state: {cursorTool.state}
         </pre>

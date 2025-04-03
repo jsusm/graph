@@ -53,14 +53,14 @@ export function useSimpleShapeTool(context: { refAppState: RefObject<DrawState>,
       context.dispatch({ type: 'tool', payload: { tool: 'cursor' } })
     }
 
-    window.addEventListener('pointermove', pointermove)
-    window.addEventListener('pointerdown', pointerdown)
-    window.addEventListener('pointerup', pointerup)
+    context.canvasContext.current?.canvas.addEventListener('pointermove', pointermove)
+    context.canvasContext.current?.canvas.addEventListener('pointerdown', pointerdown)
+    context.canvasContext.current?.canvas.addEventListener('pointerup', pointerup)
 
     return () => {
-      window.removeEventListener('pointermove', pointermove)
-      window.removeEventListener('pointerdown', pointerdown)
-      window.removeEventListener('pointerup', pointerup)
+      context.canvasContext.current?.canvas.removeEventListener('pointermove', pointermove)
+      context.canvasContext.current?.canvas.removeEventListener('pointerdown', pointerdown)
+      context.canvasContext.current?.canvas.removeEventListener('pointerup', pointerup)
     }
   }
 

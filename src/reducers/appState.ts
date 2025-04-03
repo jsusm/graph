@@ -20,7 +20,6 @@ export function appStateReducer(prevState: DrawState, action: Action): DrawState
 			return { ...prevState, nodes: prevState.nodes.map(n => n.id == action.payload.id ? action.payload.nodeData : n) }
 
 		case 'addNode':
-			console.log('adding node')
 			return { ...prevState, nodes: [...prevState.nodes, { ...action.payload.nodeData, id: prevState.lastId + 1 }], lastId: prevState.lastId + 1, selectedNodeId: prevState.lastId + 1, selectedNodeIdx: prevState.nodes.length }
 
 		case 'removeNode':
