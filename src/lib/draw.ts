@@ -1,6 +1,8 @@
 import { fillColors, strokeColors } from "./colors"
 import { DrawState } from "./types"
 
+let smoothLineLevel = 2
+
 export function draw(c: CanvasRenderingContext2D, state: DrawState) {
 	// Clear Canvas
 	c.beginPath()
@@ -77,18 +79,41 @@ export function draw(c: CanvasRenderingContext2D, state: DrawState) {
 					obj.bounding[0] + obj.points[0],
 					obj.bounding[1] + obj.points[1],
 				)
-				for (let i = 2; i < obj.points.length; i += 2) {
-					obj.path.lineTo(
-						obj.bounding[0] + obj.points[i],
-						obj.bounding[1] + obj.points[i + 1],
-					)
+				if (smoothLineLevel == 2) {
+					for (let i = 2; i < obj.points.length; i += 6) {
+						obj.path.bezierCurveTo(
+							obj.bounding[0] + obj.points[i],
+							obj.bounding[1] + obj.points[i + 1],
+							obj.bounding[0] + obj.points[i + 2],
+							obj.bounding[1] + obj.points[i + 3],
+							obj.bounding[0] + obj.points[i + 4],
+							obj.bounding[1] + obj.points[i + 5],
+						)
+					}
+				}
+				else if (smoothLineLevel == 1) {
+					for (let i = 2; i < obj.points.length; i += 4) {
+						obj.path.quadraticCurveTo(
+							obj.bounding[0] + obj.points[i],
+							obj.bounding[1] + obj.points[i + 1],
+							obj.bounding[0] + obj.points[i + 2],
+							obj.bounding[1] + obj.points[i + 3],
+						)
+					}
+				}
+				else {
+					for (let i = 2; i < obj.points.length; i += 2) {
+						obj.path.lineTo(
+							obj.bounding[0] + obj.points[i],
+							obj.bounding[1] + obj.points[i + 1],
+						)
+					}
 				}
 				c.lineWidth = obj.lineWidth
 				c.strokeStyle = strokeColors[obj.strokeColor]
 				c.stroke(obj.path)
 				c.restore()
 			}
-
 		}
 	}
 }

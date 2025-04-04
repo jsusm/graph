@@ -1,109 +1,41 @@
-import { useEffect, useReducer, useRef } from "react"
-import { DrawNode, DrawState } from "./lib/types.ts"
+import { useRef } from "react"
 import { draw } from "./lib/draw.ts"
 import { useResizeCanvas } from "./hooks/useResizeCanvas.ts"
 import { useCanvasLoop } from "./hooks/useCanvasLoop.ts"
 import { Button } from "./components/ui/Button.tsx"
 import { cn } from "./lib/classMerge.ts"
 import { useCursorTool } from "./hooks/tools/useCursorTool.ts"
-import { appStateReducer } from "./reducers/appState.ts"
 import { useSimpleShapeTool } from "./hooks/tools/useSimpleShapeTool.ts"
 import { usePencilTool } from "./hooks/tools/usePencilTool.ts"
+import { useCanvasDrawEvents } from "./hooks/useCanvasDrawEvents.ts"
+import { useCanvasContext } from "./hooks/useCanvasContext.ts"
+import { useDrawingCanvasState } from "./hooks/useDrawingCanvasState.ts"
 
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null)
+  const { context: ctx } = useCanvasContext(canvas)
 
-  const initialNodes: DrawNode[] = [
-    {
-      id: 1,
-      type: 'rect',
-      bounding: [40, 40, 80, 80],
-      strokeColor: 'red',
-      path: new Path2D(),
-      lineWidth: 2,
-      filled: true,
-      fillColor: 'red',
-    },
-    {
-      id: 2,
-      type: 'elipce',
-      bounding: [40, 40, 80, 80],
-      strokeColor: 'blue',
-      path: new Path2D(),
-      lineWidth: 3,
-      filled: false,
-      fillColor: 'blue',
-    }
-  ]
+  const { refState, state, dispatch } = useDrawingCanvasState(ctx)
 
-  function loadState(): DrawState {
-    const nodeData = localStorage.getItem('nodes')
-    let lastId = localStorage.getItem('lastId') ?? 0
-
-    if (typeof lastId == 'string') {
-      lastId = parseInt(lastId)
-    }
-
-    // create default state
-    let drawState: DrawState = { nodes: [], tool: 'cursor', selectedNodeId: -1, selectedNodeIdx: -1, lastId, saved: true }
-
-    // parse node Data
-    if (nodeData != null) {
-      const nodes: DrawNode[] = (JSON.parse(nodeData) as Array<Omit<DrawNode, 'path'>>).map(n => ({
-        ...n,
-        path: new Path2D(),
-      }))
-      drawState.nodes = nodes
-    }
-
-    return drawState
-  }
-
-  const [state, dispatch] = useReducer(appStateReducer, loadState())
-  const refState = useRef(state)
-
-  const { context: ctx } = useCanvasLoop(canvas, refState, draw)
+  useCanvasLoop(ctx, refState, draw)
   useResizeCanvas(canvas)
 
-  // save state when tool changes
-  useEffect(() => {
-    localStorage.setItem('nodes', JSON.stringify(state.nodes))
-    localStorage.setItem('lastId', JSON.stringify(state.lastId))
-  }, [state.saved])
-
-  // Use tools
   const cursorTool = useCursorTool({ refAppState: refState, dispatch, canvasContext: ctx })
   const rectTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'rect')
   const elipceTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'elipce')
   const lineTool = useSimpleShapeTool({ refAppState: refState, dispatch, canvasContext: ctx }, 'line')
   const pencilTool = usePencilTool({ refAppState: refState, dispatch, canvasContext: ctx })
 
-  // Manage handlers
-  const handlersToRemove = useRef<() => void>(() => { })
-  const toolsHandlers: { [key: string]: () => () => void } = {}
+  const { registerTool } = useCanvasDrawEvents(state)
 
-  // register tools event listeners
-  toolsHandlers['cursor'] = cursorTool.handlers
-  toolsHandlers['rect'] = rectTool.handlers
-  toolsHandlers['elipce'] = elipceTool.handlers
-  toolsHandlers['line'] = lineTool.handlers
-  toolsHandlers['pencil'] = pencilTool.handlers
-
-  // remove event listeners and register new ones
-  useEffect(() => {
-    refState.current = state
-
-    handlersToRemove.current()
-    if (toolsHandlers[refState.current.tool] == undefined) {
-      console.error("The tool:", refState.current.tool, "is not registered")
-      return
-    }
-    handlersToRemove.current = toolsHandlers[refState.current.tool]()
-
-  }, [state])
+  registerTool(cursorTool.handlers, 'cursor')
+  registerTool(rectTool.handlers, 'rect')
+  registerTool(elipceTool.handlers, 'elipce')
+  registerTool(lineTool.handlers, 'line')
+  registerTool(pencilTool.handlers, 'pencil')
 
   return (
-    <main className={cn("bg-stone-900 min-h-screen text-white", { 'cursor-grab': state.tool == "cursor" && cursorTool.hover })}>
+    <main className={cn("bg-stone-900 min-h-screen text-white relative", { 'cursor-grab': state.tool == "cursor" && cursorTool.hover })}>
       <canvas ref={canvas}>
       </canvas>
 
