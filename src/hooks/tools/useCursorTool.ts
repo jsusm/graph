@@ -2,9 +2,11 @@ import { ActionDispatch, RefObject, useEffect, useRef, useState } from "react"
 import { DrawState } from "../../lib/types"
 import { Action } from "../../reducers/appState"
 
+export type CursorStage = 'idle' | 'dragging'
+
 export function useCursorTool(context: { refAppState: RefObject<DrawState>, dispatch: ActionDispatch<[action: Action]>, canvasContext: RefObject<CanvasRenderingContext2D | null> }) {
   const [hover, setHover] = useState(false)
-  const [state, setState] = useState('idle')
+  const [state, setState] = useState<CursorStage>('idle')
   const [relativeOffset, setRelativeOffset] = useState<[number, number]>([0, 0])
 
   const toolStateRef = useRef({ hover, state })
@@ -74,6 +76,7 @@ export function useCursorTool(context: { refAppState: RefObject<DrawState>, disp
       }
       context.dispatch({ type: 'editComplete' })
     }
+
     window.addEventListener('pointermove', pointermove)
     window.addEventListener('pointerdown', pointerdown)
     window.addEventListener('pointerup', pointerup)

@@ -30,6 +30,10 @@ export function usePencilTool(context: { refAppState: RefObject<DrawState>, disp
 
     }
     const pointerdown = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).tagName != 'CANVAS') {
+        return
+      }
+
       context.dispatch({
         type: 'addNode',
         payload: {
@@ -65,11 +69,11 @@ export function usePencilTool(context: { refAppState: RefObject<DrawState>, disp
         for (let i = 0; i < node.points.length; i += 2) {
           if (Mx < node.points[i]) Mx = node.points[i]
           if (mx > node.points[i]) mx = node.points[i]
-          if (My < node.points[i]) My = node.points[i + 1]
-          if (my > node.points[i]) my = node.points[i + 1]
+          if (My < node.points[i + 1]) My = node.points[i + 1]
+          if (my > node.points[i + 1]) my = node.points[i + 1]
         }
 
-        node.bounding = [mx + node.bounding[0], my + node.bounding[1], Mx + node.bounding[0], My + node.bounding[1]]
+        node.bounding = [mx + node.bounding[0], my + node.bounding[1], Mx, My]
 
         node.points = [...node.points]
         for (let i = 0; i < node.points.length; i += 2) {
@@ -77,20 +81,21 @@ export function usePencilTool(context: { refAppState: RefObject<DrawState>, disp
           node.points[i + 1] -= my
         }
         context.dispatch({ type: 'setNode', payload: { id: node.id, nodeData: node } })
+        console.log(node.bounding)
       } else {
         console.error("Creating scribble but points data is empty")
       }
       context.dispatch({ type: 'editComplete' })
     }
 
-    context.canvasContext.current?.canvas.addEventListener('pointermove', pointermove)
-    context.canvasContext.current?.canvas.addEventListener('pointerdown', pointerdown)
-    context.canvasContext.current?.canvas.addEventListener('pointerup', pointerup)
+    document.addEventListener('pointermove', pointermove)
+    document.addEventListener('pointerdown', pointerdown)
+    document.addEventListener('pointerup', pointerup)
 
     return () => {
-      context.canvasContext.current?.canvas.removeEventListener('pointermove', pointermove)
-      context.canvasContext.current?.canvas.removeEventListener('pointerdown', pointerdown)
-      context.canvasContext.current?.canvas.removeEventListener('pointerup', pointerup)
+      document.removeEventListener('pointermove', pointermove)
+      document.removeEventListener('pointerdown', pointerdown)
+      document.removeEventListener('pointerup', pointerup)
     }
   }
 

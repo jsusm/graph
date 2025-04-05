@@ -30,6 +30,8 @@ export function useSimpleShapeTool(context: { refAppState: RefObject<DrawState>,
 
     }
     const pointerdown = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).tagName != 'CANVAS') return
+
       context.dispatch({
         type: 'addNode',
         payload: {
@@ -49,19 +51,22 @@ export function useSimpleShapeTool(context: { refAppState: RefObject<DrawState>,
       setState('drawing')
     }
     const pointerup = (e: MouseEvent) => {
-      setState('idle')
-      context.dispatch({ type: 'tool', payload: { tool: 'cursor' } })
-      context.dispatch({ type: 'editComplete' })
+      console.log(context.refAppState.current.nodes[context.refAppState.current.selectedNodeIdx].bounding)
+      if (state == 'drawing') {
+        setState('idle')
+        context.dispatch({ type: 'tool', payload: { tool: 'cursor' } })
+        context.dispatch({ type: 'editComplete' })
+      }
     }
 
-    context.canvasContext.current?.canvas.addEventListener('pointermove', pointermove)
-    context.canvasContext.current?.canvas.addEventListener('pointerdown', pointerdown)
-    context.canvasContext.current?.canvas.addEventListener('pointerup', pointerup)
+    document.addEventListener('pointermove', pointermove)
+    document.addEventListener('pointerdown', pointerdown)
+    document.addEventListener('pointerup', pointerup)
 
     return () => {
-      context.canvasContext.current?.canvas.removeEventListener('pointermove', pointermove)
-      context.canvasContext.current?.canvas.removeEventListener('pointerdown', pointerdown)
-      context.canvasContext.current?.canvas.removeEventListener('pointerup', pointerup)
+      document.removeEventListener('pointermove', pointermove)
+      document.removeEventListener('pointerdown', pointerdown)
+      document.removeEventListener('pointerup', pointerup)
     }
   }
 
