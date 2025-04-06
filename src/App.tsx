@@ -1,16 +1,15 @@
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import { draw } from "./lib/draw.ts"
 import { useResizeCanvas } from "./hooks/useResizeCanvas.ts"
 import { useCanvasLoop } from "./hooks/useCanvasLoop.ts"
 import { Button } from "./components/ui/Button.tsx"
 import { cn } from "./lib/classMerge.ts"
-import { CursorStage, CursorToolState, useCursorTool } from "./hooks/tools/useCursorTool.ts"
+import { useCursorTool } from "./hooks/tools/useCursorTool.ts"
 import { useSimpleShapeTool } from "./hooks/tools/useSimpleShapeTool.ts"
 import { usePencilTool } from "./hooks/tools/usePencilTool.ts"
 import { useCanvasDrawEvents } from "./hooks/useCanvasDrawEvents.ts"
 import { useCanvasContext } from "./hooks/useCanvasContext.ts"
 import { useDrawingCanvasState } from "./hooks/useDrawingCanvasState.ts"
-import { DrawState } from "./lib/types.ts"
 
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -38,7 +37,7 @@ function App() {
   const dragging = cursorTool.state == 'dragging' || rectTool.state == "drawing" || elipceTool.state == 'drawing' || lineTool.state == 'drawing' || pencilTool.state == 'drawing'
 
   return (
-    <main className={cn("bg-stone-950 min-h-screen text-white relative", { 'cursor-grab': state.tool == "cursor" && cursorTool.hover })}>
+    <main className={cn("bg-stone-900 min-h-screen text-white relative", { 'cursor-grab': state.tool == "cursor" && cursorTool.hover })}>
       <canvas ref={canvas}>
       </canvas>
 

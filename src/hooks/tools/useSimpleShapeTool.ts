@@ -51,8 +51,21 @@ export function useSimpleShapeTool(context: { refAppState: RefObject<DrawState>,
       setState('drawing')
     }
     const pointerup = (e: MouseEvent) => {
-      console.log(context.refAppState.current.nodes[context.refAppState.current.selectedNodeIdx].bounding)
+      const rs = context.refAppState.current
       if (state == 'drawing') {
+        const node = { ...rs.nodes[rs.selectedNodeIdx] }
+        if (node.bounding[0] > node.bounding[0] + node.bounding[2]) {
+          const temp = node.bounding[0]
+          node.bounding[0] = temp + node.bounding[2]
+          node.bounding[2] = node.bounding[2] * -1
+        }
+        if (node.bounding[1] > node.bounding[1] + node.bounding[3]) {
+          const temp = node.bounding[1]
+          node.bounding[1] = temp + node.bounding[3]
+          node.bounding[3] = node.bounding[3] * -1
+        }
+        context.dispatch({ type: 'setNode', payload: { id: node.id, nodeData: node } })
+
         setState('idle')
         context.dispatch({ type: 'tool', payload: { tool: 'cursor' } })
         context.dispatch({ type: 'editComplete' })
